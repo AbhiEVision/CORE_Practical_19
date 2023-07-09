@@ -32,7 +32,7 @@ namespace Practical_19_Api.Controllers
 
 				if (test.IsSuccess)
 				{
-					return StatusCode((int)HttpStatusCode.Accepted, test);
+					return StatusCode(200, test);
 				}
 				else
 				{
@@ -65,7 +65,7 @@ namespace Practical_19_Api.Controllers
 
 				if (test.IsSuccess)
 				{
-					return StatusCode((int)HttpStatusCode.Accepted, test);
+					return StatusCode(200, test);
 				}
 				else
 				{
@@ -88,9 +88,14 @@ namespace Practical_19_Api.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				var test = await _userServices.LogoutUserAsync(model);
+				ApiResponseObject test = await _userServices.LogoutUserAsync(model);
 
-				return StatusCode((int)HttpStatusCode.Accepted, test);
+				if (!test.IsSuccess)
+				{
+					return StatusCode((int)HttpStatusCode.BadRequest, test);
+				}
+
+				return StatusCode(200, test);
 			}
 
 			return StatusCode((int)HttpStatusCode.BadGateway, "Model Invalid!");

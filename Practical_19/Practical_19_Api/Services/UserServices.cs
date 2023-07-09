@@ -13,13 +13,20 @@ namespace Practical_19_Api.Services
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly IAccessRepository _accessRepository;
 		private readonly SignInManager<IdentityUser> _signInManager;
+		private readonly IUserRepository _userRepository;
 
-		public UserServices(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IAccessRepository access, SignInManager<IdentityUser> signInManager)
+		public UserServices(
+			UserManager<IdentityUser> userManager,
+			RoleManager<IdentityRole> roleManager,
+			IAccessRepository access,
+			SignInManager<IdentityUser> signInManager,
+			IUserRepository userRepository)
 		{
 			_userManager = userManager;
 			_roleManager = roleManager;
 			_accessRepository = access;
 			this._signInManager = signInManager;
+			_userRepository = userRepository;
 		}
 
 
@@ -129,6 +136,17 @@ namespace Practical_19_Api.Services
 				}
 
 				var test = await _userManager.AddToRoleAsync(identityUser, "User");
+
+				User newUser = new User()
+				{
+					FirstName = model.FirstName,
+					LastName = model.LastName,
+					Email = model.Email,
+					Password = model.Password,
+				};
+
+				await _userRepository.AddUser(newUser);
+
 
 				if (test.Succeeded)
 				{

@@ -32,6 +32,7 @@ namespace Practical_19_Api
 
 			builder.Services.AddScoped<IUserServices, UserServices>();
 
+			builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
 			builder.Services.AddControllers();
@@ -52,7 +53,7 @@ namespace Practical_19_Api
 
 			app.MapControllers();
 
-			
+
 
 			app.Run();
 		}
