@@ -78,5 +78,22 @@ namespace Practical_19_Api.Repository
 
 			return false;
 		}
+
+		public IEnumerable<RegistredUser> GetUsers()
+		{
+			List<RegistredUser> users = new List<RegistredUser>();
+
+			foreach (var item in _db.Access)
+			{
+				string test = item.CreatePermission ? "Admin" : "User";
+				users.Add(new RegistredUser()
+				{
+					Email = item.Token,
+					Role = test,
+				});
+			}
+
+			return users;
+		}
 	}
 }

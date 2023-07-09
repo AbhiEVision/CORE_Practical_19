@@ -11,5 +11,7 @@ namespace Practical_19_Api.Interfaces.Repository
 		Task RemoveAccess(LogoutModel model);
 
 		Task<bool> IsUserLoggedIn(LogoutModel model);
+
+		IEnumerable<RegistredUser> GetUsers();
 	}
 }

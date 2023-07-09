@@ -101,5 +101,12 @@ namespace Practical_19_Api.Controllers
 			return StatusCode((int)HttpStatusCode.BadGateway, "Model Invalid!");
 		}
 
+		[HttpGet("Users")]
+		public async Task<IActionResult> GetUsers()
+		{
+
+			return StatusCode(200, _userServices.GetUsers());
+		}
+
 	}
 }

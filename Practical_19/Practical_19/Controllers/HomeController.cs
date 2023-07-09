@@ -15,9 +15,17 @@ namespace Practical_19.Controllers
 			_httpClient = httpClient;
 		}
 
-		public IActionResult Index()
+		public async Task<IActionResult> Index()
 		{
-			return View();
+			var result = await _httpClient.GetAsync("https://localhost:7078/api/Access/Users");
+
+			var data = await result.Content.ReadAsStringAsync();
+
+
+
+			List<RegisterdUser> response = JsonConvert.DeserializeObject<List<RegisterdUser>>(data);
+
+			return View(response);
 		}
 
 		public IActionResult Login()

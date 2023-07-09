@@ -1,6 +1,9 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<Practical_19.Models.RegisterdUser>
+
+@{
+    ViewData["Title"] = "Index";
 }
+
 
 <div class="text-center">
 	<h1 class="display-4">Welcome to the Practical 19</h1>
@@ -13,4 +16,36 @@
 	<a asp-action="Logout" class="btn btn-danger">Logout</a>
 
 
+</div>
+
+<br />
+<br />
+
+<div class="text-center">
+    <h4>Total Logged In Users</h4>
+    <hr />
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Role)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Role)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
 </div>
