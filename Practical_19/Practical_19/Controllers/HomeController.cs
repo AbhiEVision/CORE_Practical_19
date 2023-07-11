@@ -39,13 +39,7 @@ namespace Practical_19.Controllers
 				return View(new List<RegisterdUser>());
 			}
 
-
-
-
-
-
 			//List<RegisterdUser> response = JsonConvert.DeserializeObject<List<RegisterdUser>>(data);
-
 
 			return View(response);
 		}
@@ -154,28 +148,6 @@ namespace Practical_19.Controllers
 			//return View();
 		}
 
-		//[HttpPost]
-		//public async Task<IActionResult> Logout(LogoutModel model)
-		//{
 
-
-		//	var result = await _httpClient.PostAsJsonAsync("https://localhost:7078/api/Access/Logout", model);
-
-		//	var data = await result.Content.ReadAsStringAsync();
-
-		//	ResponseResult response = JsonConvert.DeserializeObject<ResponseResult>(data);
-
-
-		//	if (result.StatusCode == (HttpStatusCode)200 && response.IsSuccess)
-		//	{
-		//		return RedirectToAction("Index");
-		//	}
-
-
-
-		//	ViewBag.Message = response.Messgae;
-
-		//	return View(model);
-		//}
 	}
 }

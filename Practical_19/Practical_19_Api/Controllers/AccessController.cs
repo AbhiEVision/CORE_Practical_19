@@ -109,7 +109,9 @@ namespace Practical_19_Api.Controllers
 		public async Task<IActionResult> GetUsers()
 		{
 
-			return StatusCode(200, _userServices.GetUsers());
+			List<RegistredUser> list = await _userServices.GetUsers();
+
+			return StatusCode(200, list);
 		}
 
 	}

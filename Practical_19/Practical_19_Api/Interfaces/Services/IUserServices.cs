@@ -13,6 +13,6 @@ namespace Practical_19_Api.Interfaces.Services
 
 		Task<bool> IsUserLoggedIn(LoginViewModel model);
 
-		IEnumerable<RegistredUser> GetUsers();
+		Task<List<RegistredUser>> GetUsers();
 	}
 }

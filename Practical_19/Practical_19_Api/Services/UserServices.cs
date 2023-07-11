@@ -219,9 +219,30 @@ namespace Practical_19_Api.Services
 			return await _accessRepository.IsUserLoggedIn(new LogoutModel() { Email = model.Email });
 		}
 
-		public IEnumerable<RegistredUser> GetUsers()
+		public async Task<List<RegistredUser>> GetUsers()
 		{
-			return _accessRepository.GetUsers();
+			List<RegistredUser> list = new List<RegistredUser>();
+
+			foreach (var item in await _userManager.GetUsersInRoleAsync("Admin"))
+			{
+				list.Add(new RegistredUser()
+				{
+					Email = item.Email,
+					Role = "Admin",
+				});
+			}
+
+			foreach (var item in await _userManager.GetUsersInRoleAsync("User"))
+			{
+				list.Add(new RegistredUser()
+				{
+					Email = item.Email,
+					Role = "User",
+				});
+			}
+
+
+			return list;
 		}
 	}
 }
