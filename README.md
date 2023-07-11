@@ -33,3 +33,13 @@ and do the apply now you can see the following thing:
 ![image](https://github.com/AbhiSimform/CORE_Practical_18/assets/125336138/9191197e-8eb7-4bf2-a809-0329eb66ad59)
 
  Note : only do the following steps if you do not have multiple startup objects
+
+ Now : when you want to add Admin than Just Changed in below file
+
+ API / Services / UserServices 
+
+ inside that at 151 line of RegisterUser inside that You have to just chage to User Role.
+
+ ![image](https://github.com/AbhiSimform/CORE_Practical_19/assets/125336138/ff310082-7cc5-4206-accf-ea47efa656b4)
+
+and now Register User which are Register in "User" Role.
