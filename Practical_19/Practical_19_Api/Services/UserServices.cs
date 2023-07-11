@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Practical_19_Api.Interfaces.Repository;
 using Practical_19_Api.Interfaces.Services;
 using Practical_19_Api.Model;
 using Practical_19_Api.VIewModel;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace Practical_19_Api.Services
 {
@@ -14,19 +17,22 @@ namespace Practical_19_Api.Services
 		private readonly IAccessRepository _accessRepository;
 		private readonly SignInManager<IdentityUser> _signInManager;
 		private readonly IUserRepository _userRepository;
+		private readonly IConfiguration _configuration;
 
 		public UserServices(
 			UserManager<IdentityUser> userManager,
 			RoleManager<IdentityRole> roleManager,
 			IAccessRepository access,
 			SignInManager<IdentityUser> signInManager,
-			IUserRepository userRepository)
+			IUserRepository userRepository,
+			IConfiguration configuration)
 		{
 			_userManager = userManager;
 			_roleManager = roleManager;
 			_accessRepository = access;
 			this._signInManager = signInManager;
 			_userRepository = userRepository;
+			_configuration = configuration;
 		}
 
 
@@ -36,13 +42,9 @@ namespace Practical_19_Api.Services
 
 			if (isAlreadyLoggedIn)
 			{
-				return new ApiResponseObject()
-				{
-					Messgae = "Already Logged In",
-					IsSuccess = false,
-					Errors = new List<string>() { "you can not logged in multiple time!" }
-				};
+				await LogoutUserAsync(new LogoutModel() { Email = model.Email });
 			}
+
 			var user = await _userManager.FindByEmailAsync(model.Email);
 
 			if (user == null)
@@ -65,7 +67,7 @@ namespace Practical_19_Api.Services
 				};
 			}
 
-			var claims = new List<Claim>()
+			var ListOfClaims = new List<Claim>()
 			{
 				new Claim("Email",model.Email),
 			};
@@ -85,12 +87,23 @@ namespace Practical_19_Api.Services
 				}
 			}
 
+			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthKey"]));
+
 			await _signInManager.SignInAsync(user, true);
+
+			var token = new JwtSecurityToken(
+					claims: ListOfClaims,
+					expires: DateTime.Now.AddHours(1),
+				signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
+				);
+
+			string tokenAsAString = new JwtSecurityTokenHandler().WriteToken(token);
 
 			return new ApiResponseObject()
 			{
 				IsSuccess = true,
 				Messgae = "You are successfully logged in!",
+				TokenAsAString = tokenAsAString
 			};
 
 		}
@@ -135,7 +148,7 @@ namespace Practical_19_Api.Services
 					await _roleManager.CreateAsync(new IdentityRole() { Name = "User" });
 				}
 
-				var test = await _userManager.AddToRoleAsync(identityUser, "User");
+				var test = await _userManager.AddToRoleAsync(identityUser, "Admin");
 
 				User newUser = new User()
 				{

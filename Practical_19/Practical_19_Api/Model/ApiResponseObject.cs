@@ -7,5 +7,9 @@ namespace Practical_19_Api.Model
 		public bool IsSuccess { get; set; }
 
 		public IEnumerable<string> Errors { get; set; }
+
+		public string TokenAsAString { get; set; }
+
+		public string UserId { get; set; }
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Practical_19_Api.Interfaces.Services;
 using Practical_19_Api.Model;
 using Practical_19_Api.VIewModel;
@@ -32,7 +33,9 @@ namespace Practical_19_Api.Controllers
 
 				if (test.IsSuccess)
 				{
-					return StatusCode(200, test);
+					Response.Cookies.Append("AuthToken", test.TokenAsAString, new CookieOptions() { HttpOnly = true });
+					test.UserId = model.Email;
+					return Ok(test);
 				}
 				else
 				{
@@ -101,6 +104,7 @@ namespace Practical_19_Api.Controllers
 			return StatusCode((int)HttpStatusCode.BadGateway, "Model Invalid!");
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpGet("Users")]
 		public async Task<IActionResult> GetUsers()
 		{

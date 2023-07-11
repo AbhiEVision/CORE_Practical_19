@@ -3,10 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Practical_19_Api.Controllers
 {
-	//[Authorize]
 	[ApiController]
 	[Route("[controller]")]
-
+	[Authorize(Roles ="User")]
 	public class WeatherForecastController : ControllerBase
 	{
 		private static readonly string[] Summaries = new[]
@@ -19,7 +18,7 @@ namespace Practical_19_Api.Controllers
 		public WeatherForecastController(ILogger<WeatherForecastController> logger)
 		{
 			_logger = logger;
-		}
+		}  
 
 		[HttpGet(Name = "GetWeatherForecast")]
 		public IEnumerable<WeatherForecast> Get()

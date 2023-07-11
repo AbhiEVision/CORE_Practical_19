@@ -11,6 +11,8 @@ namespace Practical_19
 			builder.Services.AddMvc();
 			builder.Services.AddHttpClient();
 
+			builder.Services.AddSession();
+			builder.Services.AddHttpContextAccessor();
 
 			var app = builder.Build();
 
@@ -28,7 +30,7 @@ namespace Practical_19
 			app.UseRouting();
 
 			app.UseAuthorization();
-
+			app.UseSession();
 			app.MapControllerRoute(
 				name: "default",
 				pattern: "{controller=Home}/{action=Index}/{id?}");

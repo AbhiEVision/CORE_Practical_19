@@ -12,6 +12,7 @@ namespace Practical_19.Controllers
 
 		public HomeController(HttpClient httpClient)
 		{
+
 			_httpClient = httpClient;
 		}
 
@@ -21,9 +22,30 @@ namespace Practical_19.Controllers
 
 			var data = await result.Content.ReadAsStringAsync();
 
-
-
 			List<RegisterdUser> response = JsonConvert.DeserializeObject<List<RegisterdUser>>(data);
+
+
+			if (Request.Cookies["User"] != null && response == null)
+			{
+				ViewBag.Messgage = "You are unauthorize to see the data! ";
+				return View(new List<RegisterdUser>());
+
+			}
+
+
+			if (response == null)
+			{
+				ViewBag.Messgage = "You are not logged in for See the data";
+				return View(new List<RegisterdUser>());
+			}
+
+
+
+
+
+
+			//List<RegisterdUser> response = JsonConvert.DeserializeObject<List<RegisterdUser>>(data);
+
 
 			return View(response);
 		}
@@ -39,15 +61,20 @@ namespace Practical_19.Controllers
 		{
 			var result = await _httpClient.PostAsJsonAsync("https://localhost:7078/api/Access/Login", model);
 
+
 			var data = await result.Content.ReadAsStringAsync();
 
 			ResponseResult response = JsonConvert.DeserializeObject<ResponseResult>(data);
 
 
+
 			if (result.StatusCode == (HttpStatusCode)200 && response.IsSuccess)
 			{
+				Response.Cookies.Append("Test", response.TokenAsAString);
+				Response.Cookies.Append("User", response.UserId);
 				return RedirectToAction("Index");
 			}
+
 
 			if (response.Errors != null)
 			{
@@ -100,29 +127,55 @@ namespace Practical_19.Controllers
 
 		public async Task<IActionResult> Logout()
 		{
-			return View();
-		}
+			if (Request.Cookies["User"] == null)
+			{
+				return RedirectToAction("Index");
+			}
 
-		[HttpPost]
-		public async Task<IActionResult> Logout(LogoutModel model)
-		{
-			var result = await _httpClient.PostAsJsonAsync("https://localhost:7078/api/Access/Logout", model);
+			var userId = Request.Cookies["User"].ToString();
+			var result = await _httpClient.PostAsJsonAsync("https://localhost:7078/api/Access/Logout", new LogoutModel() { Email = userId });
 
 			var data = await result.Content.ReadAsStringAsync();
 
 			ResponseResult response = JsonConvert.DeserializeObject<ResponseResult>(data);
 
 
+
 			if (result.StatusCode == (HttpStatusCode)200 && response.IsSuccess)
 			{
-				return RedirectToAction("Index");
+				Response.Cookies.Delete("Test");
+				Response.Cookies.Delete("User");
+
 			}
+			return RedirectToAction("Index");
 
 
 
-			ViewBag.Message = response.Messgae;
-
-			return View(model);
+			//return View();
 		}
+
+		//[HttpPost]
+		//public async Task<IActionResult> Logout(LogoutModel model)
+		//{
+
+
+		//	var result = await _httpClient.PostAsJsonAsync("https://localhost:7078/api/Access/Logout", model);
+
+		//	var data = await result.Content.ReadAsStringAsync();
+
+		//	ResponseResult response = JsonConvert.DeserializeObject<ResponseResult>(data);
+
+
+		//	if (result.StatusCode == (HttpStatusCode)200 && response.IsSuccess)
+		//	{
+		//		return RedirectToAction("Index");
+		//	}
+
+
+
+		//	ViewBag.Message = response.Messgae;
+
+		//	return View(model);
+		//}
 	}
 }

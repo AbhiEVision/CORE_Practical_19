@@ -8,5 +8,9 @@
 
 		public IEnumerable<string> Errors { get; set; }
 
+		public string TokenAsAString { get; set; }
+
+		public string UserId { get; set; }
+
 	}
 }
