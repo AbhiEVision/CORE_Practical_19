@@ -38,73 +38,75 @@ namespace Practical_19_Api.Services
 
 		public async Task<ApiResponseObject> LoginUserAsync(LoginViewModel model)
 		{
-			var isAlreadyLoggedIn = await IsUserLoggedIn(model);
+			//var isAlreadyLoggedIn = await IsUserLoggedIn(model);
 
-			if (isAlreadyLoggedIn)
-			{
-				await LogoutUserAsync(new LogoutModel() { Email = model.Email });
-			}
+			//if (isAlreadyLoggedIn)
+			//{
+			//	await LogoutUserAsync(new LogoutModel() { Email = model.Email });
+			//}
 
-			var user = await _userManager.FindByEmailAsync(model.Email);
+			//var user = await _userManager.FindByEmailAsync(model.Email);
 
-			if (user == null)
-			{
-				return new ApiResponseObject()
-				{
-					IsSuccess = false,
-					Messgae = "User not found!",
-				};
-			}
+			//if (user == null)
+			//{
+			//	return new ApiResponseObject()
+			//	{
+			//		IsSuccess = false,
+			//		Messgae = "User not found!",
+			//	};
+			//}
 
-			var result = await _userManager.CheckPasswordAsync(user, model.Password);
+			//var result = await _userManager.CheckPasswordAsync(user, model.Password);
 
-			if (result == false)
-			{
-				return new ApiResponseObject()
-				{
-					IsSuccess = false,
-					Messgae = "Invalid Password!",
-				};
-			}
+			//if (result == false)
+			//{
+			//	return new ApiResponseObject()
+			//	{
+			//		IsSuccess = false,
+			//		Messgae = "Invalid Password!",
+			//	};
+			//}
 
-			var ListOfClaims = new List<Claim>()
-			{
-				new Claim("Email",model.Email),
-			};
+			//var ListOfClaims = new List<Claim>()
+			//{
+			//	new Claim("Email",model.Email),
+			//};
 
-			var listOfRole = await _userManager.GetRolesAsync(user);
+			//var listOfRole = await _userManager.GetRolesAsync(user);
 
-			foreach (var role in listOfRole)
-			{
-				if (role == "Admin")
-				{
-					await _accessRepository.AddAccessToAdmin(model);
-				}
+			//foreach (var role in listOfRole)
+			//{
+			//	if (role == "Admin")
+			//	{
+			//		await _accessRepository.AddAccessToAdmin(model);
+			//	}
 
-				if (role == "User")
-				{
-					await _accessRepository.AddAccessToUser(model);
-				}
-			}
+			//	if (role == "User")
+			//	{
+			//		await _accessRepository.AddAccessToUser(model);
+			//	}
+			//}
 
-			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthKey"]));
+			//var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthKey"]));
 
-			await _signInManager.SignInAsync(user, true);
+			////await _signInManager.SignInAsync(user, true);
 
-			var token = new JwtSecurityToken(
-					claims: ListOfClaims,
-					expires: DateTime.Now.AddHours(1),
-				signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
-				);
+			//var token = new JwtSecurityToken(
+			//		claims: ListOfClaims,
+			//		expires: DateTime.Now.AddHours(1),
+			//	signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
+			//	) ;
 
-			string tokenAsAString = new JwtSecurityTokenHandler().WriteToken(token);
+			//string tokenAsAString = new JwtSecurityTokenHandler().WriteToken(token);
 
-			return new ApiResponseObject()
-			{
-				IsSuccess = true,
-				Messgae = "You are successfully logged in!",
-				TokenAsAString = tokenAsAString
-			};
+			//return new ApiResponseObject()
+			//{
+			//	IsSuccess = true,
+			//	Messgae = "You are successfully logged in!",
+			//	//TokenAsAString = tokenAsAString
+			//};
+
+			return await TestLogin(model);
 
 		}
 
@@ -148,7 +150,7 @@ namespace Practical_19_Api.Services
 					await _roleManager.CreateAsync(new IdentityRole() { Name = "User" });
 				}
 
-				var test = await _userManager.AddToRoleAsync(identityUser, "Admin");
+				var test = await _userManager.AddToRoleAsync(identityUser, model.Roles.ToString());
 
 				User newUser = new User()
 				{
@@ -156,6 +158,7 @@ namespace Practical_19_Api.Services
 					LastName = model.LastName,
 					Email = model.Email,
 					Password = model.Password,
+					Roles = model.Roles,
 				};
 
 				await _userRepository.AddUser(newUser);
@@ -191,6 +194,8 @@ namespace Practical_19_Api.Services
 
 
 			bool userLoggedIn = await _accessRepository.IsUserLoggedIn(model);
+
+			//await _signInManager.SignOutAsync();
 
 			if (userLoggedIn)
 			{
@@ -244,5 +249,80 @@ namespace Practical_19_Api.Services
 
 			return list;
 		}
+
+		private string GenerateJWT(LoginViewModel user, string roles)
+		{
+			var jwtTokenHandler = new JwtSecurityTokenHandler();
+			var key = Encoding.UTF8.GetBytes(_configuration["AuthKey"]);
+
+			var tokenDescriptor = new SecurityTokenDescriptor()
+			{
+				Subject = new ClaimsIdentity(new List<Claim>() {
+					//new Claim("Id", user.Id),
+					new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+					//new Claim(JwtRegisteredClaimNames.Name, $"{user.FirstName} {user.LastName}"),
+					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //JWT Token Id
+                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToUniversalTime().ToString()), //time at which JWT issued
+                    new Claim(ClaimTypes.Role , roles)
+				}),
+				Expires = DateTime.Now.AddMinutes(5),
+				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+			};
+			var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+			var jwt = jwtTokenHandler.WriteToken(token);
+			return jwt;
+		}
+
+
+		public async Task<ApiResponseObject> TestLogin(LoginViewModel model)
+		{
+			if (model == null)
+			{
+				return new ApiResponseObject()
+				{
+					Messgae = "Model is null",
+					IsSuccess = false
+				};
+			}
+
+			var user = await _userManager.FindByEmailAsync(model.Email);
+
+			if (user == null)
+			{
+				return new ApiResponseObject()
+				{
+					Messgae = "Requested User is not found!",
+					IsSuccess = false
+				};
+			}
+
+			var isVerified = await _userManager.CheckPasswordAsync(user, model.Password);
+
+			if (!isVerified)
+			{
+				return new ApiResponseObject()
+				{
+					Messgae = "Login Credentials is null!",
+					IsSuccess = false,
+					Errors = new List<string>() { "User password is invalid" }
+				};
+			}
+
+			var rolesOfUser = await _userManager.GetRolesAsync(user);
+
+			var combinedRoles = string.Join(",", rolesOfUser);
+
+			var token = GenerateJWT(model, combinedRoles);
+
+			return new ApiResponseObject()
+			{
+				Messgae = "User successfully logged in!",
+				IsSuccess = true,
+				TokenAsAString = token,
+				UserId = model.Email,
+			};
+
+		}
+
 	}
 }

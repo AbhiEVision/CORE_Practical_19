@@ -24,6 +24,7 @@ namespace Practical_19
 				app.UseHsts();
 			}
 
+
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 

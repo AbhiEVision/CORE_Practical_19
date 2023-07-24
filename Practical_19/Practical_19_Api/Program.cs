@@ -34,21 +34,16 @@ namespace Practical_19_Api
 			{
 				option.TokenValidationParameters = new TokenValidationParameters()
 				{
+					ValidateIssuer = false,
+					ValidateAudience = false,
 					RequireExpirationTime = true,
+					ValidateLifetime = true,
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AuthKey"])),
 					ValidateIssuerSigningKey = true,
+					ClockSkew = TimeSpan.Zero,
 				};
 
-
-				option.Events.OnMessageReceived = context =>
-				{
-					if (context.Request.Cookies.ContainsKey("AuthToken"))
-					{
-						context.Token = context.Request.Cookies["AuthToken"];
-					}
-					return Task.CompletedTask;
-				};
-
+				option.SaveToken = true;
 			});
 			builder.Services.AddAuthorization();
 
@@ -80,6 +75,13 @@ namespace Practical_19_Api
 			{
 				//app.UseSwagger();
 			}
+
+			//app.Use(async (context, next) =>
+			//{
+			//	//var test = await context.Request.ReadFromJsonAsync<RegisterViewModel>();
+
+			//	await next.Invoke();
+			//});
 
 			app.UseHttpsRedirection();
 			app.UseAuthentication();

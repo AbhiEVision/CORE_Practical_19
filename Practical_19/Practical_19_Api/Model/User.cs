@@ -22,5 +22,8 @@ namespace Practical_19_Api.Model
 		[Required]
 		[StringLength(50, MinimumLength = 5)]
 		public string Password { get; set; }
+
+		[Required]
+		public string Roles { get; set; }
 	}
 }

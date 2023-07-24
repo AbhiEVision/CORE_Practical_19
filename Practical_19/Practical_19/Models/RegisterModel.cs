@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace Practical_19.Models
 {
@@ -19,10 +20,16 @@ namespace Practical_19.Models
 
 		[Required]
 		[StringLength(50, MinimumLength = 5)]
+		[DataType(DataType.Password)]
 		public string Password { get; set; }
 
 		[Required]
+		[DataType(DataType.Password)]
 		public string ConfirmPassword { get; set; }
+
+		[Required]
+		//[JsonConverter(typeof(StringEnumConverter))]
+		public string Roles { get; set; }
 
 	}
 }

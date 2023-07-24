@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Practical_19.Models;
 using System.Net;
+using System.Net.Http.Headers;
 
 namespace Practical_19.Controllers
 {
@@ -18,28 +20,29 @@ namespace Practical_19.Controllers
 
 		public async Task<IActionResult> Index()
 		{
-			var result = await _httpClient.GetAsync("https://localhost:7078/api/Access/Users");
+			HttpClient client = new HttpClient();
 
-			var data = await result.Content.ReadAsStringAsync();
+			List<RegisterdUser> response = new List<RegisterdUser>();
 
-			List<RegisterdUser> response = JsonConvert.DeserializeObject<List<RegisterdUser>>(data);
-
-
-			if (Request.Cookies["User"] != null && response == null)
+			if (Request.Cookies["Test"] != null)
 			{
-				ViewBag.Messgage = "You are unauthorize to see the data! ";
-				return View(new List<RegisterdUser>());
+				var token = Request.Cookies["Test"].ToString();
+
+				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+				var result = await client.GetAsync("https://localhost:7078/api/Access/Users");
+
+				var data = await result.Content.ReadAsStringAsync();
+
+				response = JsonConvert.DeserializeObject<List<RegisterdUser>>(data);
 
 			}
-
 
 			if (response == null)
 			{
-				ViewBag.Messgage = "You are not logged in for See the data";
-				return View(new List<RegisterdUser>());
+				ViewBag.Messgage = "You are UnAuthorized to see the data";
+				response = new List<RegisterdUser>();
 			}
-
-			//List<RegisterdUser> response = JsonConvert.DeserializeObject<List<RegisterdUser>>(data);
 
 			return View(response);
 		}
@@ -78,13 +81,18 @@ namespace Practical_19.Controllers
 				}
 			}
 
-			ViewBag.Message = response.Messgae;
+			//ViewBag.Message = response.Messgae;
 
 			return View(model);
 		}
 
 		public IActionResult Register()
 		{
+			ViewBag.Roles = new List<SelectListItem>() {
+				new SelectListItem() {Text ="Admin", Value ="Admin"},
+				new SelectListItem() {Text ="User", Value ="User"}
+			};
+
 			return View();
 		}
 
@@ -115,7 +123,10 @@ namespace Practical_19.Controllers
 			}
 
 			ViewBag.Message = response.Messgae;
-
+			ViewBag.Roles = new List<SelectListItem>() {
+				new SelectListItem() {Text ="Admin", Value ="Admin"},
+				new SelectListItem() {Text ="User", Value ="User"}
+			};
 			return View(model);
 		}
 
@@ -126,28 +137,36 @@ namespace Practical_19.Controllers
 				return RedirectToAction("Index");
 			}
 
-			var userId = Request.Cookies["User"].ToString();
-			var result = await _httpClient.PostAsJsonAsync("https://localhost:7078/api/Access/Logout", new LogoutModel() { Email = userId });
+			Response.Cookies.Delete("User");
+			Response.Cookies.Delete("Test");
 
-			var data = await result.Content.ReadAsStringAsync();
-
-			ResponseResult response = JsonConvert.DeserializeObject<ResponseResult>(data);
-
-
-
-			if (result.StatusCode == (HttpStatusCode)200 && response.IsSuccess)
-			{
-				Response.Cookies.Delete("Test");
-				Response.Cookies.Delete("User");
-
-			}
 			return RedirectToAction("Index");
-
-
-
-			//return View();
 		}
 
+
+		//public async Task<List<RegisterdUser>> TestEx()
+		//{
+		//	HttpClient client = new HttpClient();
+
+		//	if (Request.Cookies["Test"] != null)
+		//	{
+		//		var token = Request.Cookies["Test"].ToString();
+
+		//		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+		//		var result = await client.GetAsync("https://localhost:7078/api/Access/Users");
+
+		//		var data = await result.Content.ReadAsStringAsync();
+
+		//		List<RegisterdUser> response = JsonConvert.DeserializeObject<List<RegisterdUser>>(data);
+
+		//		return response;
+
+		//	}
+
+		//	return new List<RegisterdUser>();
+
+		//}
 
 	}
 }

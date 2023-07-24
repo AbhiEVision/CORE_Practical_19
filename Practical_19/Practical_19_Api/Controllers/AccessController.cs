@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practical_19_Api.Interfaces.Services;
 using Practical_19_Api.Model;
@@ -104,10 +105,11 @@ namespace Practical_19_Api.Controllers
 			return StatusCode((int)HttpStatusCode.BadGateway, "Model Invalid!");
 		}
 
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 		[HttpGet("Users")]
 		public async Task<IActionResult> GetUsers()
 		{
+
 
 			List<RegistredUser> list = await _userServices.GetUsers();
 

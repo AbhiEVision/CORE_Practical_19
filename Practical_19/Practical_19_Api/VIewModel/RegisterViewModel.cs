@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace Practical_19_Api.VIewModel
 {
@@ -23,5 +24,9 @@ namespace Practical_19_Api.VIewModel
 
 		[Required]
 		public string ConfirmPassword { get; set; }
+
+		[Required]
+		//[JsonConverter(typeof(StringEnumConverter))]
+		public string Roles { get; set; }
 	}
 }

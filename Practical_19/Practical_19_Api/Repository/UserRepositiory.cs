@@ -4,7 +4,7 @@ using Practical_19_Api.Model;
 
 namespace Practical_19_Api.Repository
 {
-	public class UserRepository : IUserRepository
+	public class UserRepository : IUserRepository, IDisposable
 	{
 		private readonly AppDbContext _db;
 
@@ -24,6 +24,11 @@ namespace Practical_19_Api.Repository
 			_db.Users.Remove(user);
 			await _db.SaveChangesAsync();
 
+		}
+
+		public void Dispose()
+		{
+			_db.Dispose();
 		}
 	}
 }
